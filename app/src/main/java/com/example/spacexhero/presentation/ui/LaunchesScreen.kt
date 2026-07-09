@@ -1,5 +1,6 @@
 package com.example.spacexhero.presentation.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -55,12 +57,15 @@ fun LaunchesScreen(
     onNavigateToDetails: (String) -> Unit
 ) {
     val launches: LazyPagingItems<Launch> = viewModel.launchPagingData.collectAsLazyPagingItems()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is LaunchesEffect.NavigateToDetails -> onNavigateToDetails(effect.launchId)
-                is LaunchesEffect.ShowError -> { /* optionally show snackbar */ }
+                is LaunchesEffect.ShowError -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -208,9 +213,9 @@ private fun LaunchImage(imageUrl: String) {
 }
 
 @Composable
-private fun LaunchImagePlaceholder(modifier: Modifier = Modifier) {
+private fun LaunchImagePlaceholder() {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .size(48.dp)
             .background(
                 Color.hsl(200f, 0.7f, 0.5f),
